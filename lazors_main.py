@@ -2,32 +2,37 @@ import random
 
 
 def read_bff(filename):
-    file = open(filename)
-    content = file.read().splitlines()
-    content = list(filter(None, content))
+    try:
+        with open(filename) as file:
+            content = file.read().splitlines()
+    except IOError:
+        print(f"Error: file {filename} not found or could not be read.")
+        return None
+
+    content = [line for line in content if line]
 
     grid = []
-    grid_reader = False
     blocks = []
     lazors = []
     points = []
+    grid_reader = False
 
     for line in content:
         if line == "GRID START":
             grid_reader = True
-        if line == "GRID STOP":
+            continue
+        elif line == "GRID STOP":
             grid_reader = False
+            continue
+
         if grid_reader:
-            if line != "GRID START":
-                grid.append(line)
-        if not grid_reader:
-            if line[0] == 'A' or line[0] == 'B' or line[0] == 'C':
+            grid.append(line)
+        else:
+            if line[0] in ('A', 'B', 'C'):
                 blocks.append(line)
-
-            if line[0] == 'L':
+            elif line[0] == 'L':
                 lazors.append(line)
-
-            if line[0] == 'P':
+            elif line[0] == 'P':
                 points.append(line)
 
     return grid, blocks, lazors, points
